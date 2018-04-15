@@ -29,7 +29,7 @@ public class ProximityUnlocker extends Service implements SensorEventListener {
 		mPowerManager = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
 		mSensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
 		Sensor sensor = mSensorManager.getSensorList(Sensor.TYPE_PROXIMITY).get(0);
-		mSensorManager.registerListener(this, sensor, 500000);
+		mSensorManager.registerListener(this, sensor, 250000);
 	}
 
 	@Override

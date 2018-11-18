@@ -12,10 +12,13 @@ import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import static eu.nexwell.unlocker.SystemProperties.read;
+
 public class ProximityUnlocker extends Service implements SensorEventListener {
 	private static final String TAG = ProximityUnlocker.class.getSimpleName();
-	private static final float SCREEN_ON_THRESHOLD = 105f;
-	private static final float SCREEN_OFF_THRESHOLD = 115f;
+	private static float SCREEN_HYSTERESIS = 10;
+	private static float SCREEN_ON_THRESHOLD = 105f;
+	private static float SCREEN_OFF_THRESHOLD = SCREEN_ON_THRESHOLD + SCREEN_HYSTERESIS;
 	private SensorManager mSensorManager;
 	private PowerManager mPowerManager;
 	private PowerManager.WakeLock mWakelock;
@@ -25,6 +28,14 @@ public class ProximityUnlocker extends Service implements SensorEventListener {
 		Log.i(TAG, "onCreate()");
 
 		super.onCreate();
+
+		String distance = SystemProperties.read("persist.unlocker.distance");
+		try {
+			SCREEN_ON_THRESHOLD = Float.valueOf(distance);
+			SCREEN_OFF_THRESHOLD = SCREEN_ON_THRESHOLD + SCREEN_ON_THRESHOLD;
+		} catch (NumberFormatException e) {
+			Log.i(TAG, "persist.unlocker.distance not available, using default ON=" + SCREEN_ON_THRESHOLD + "cm");
+		}
 
 		mPowerManager = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
 		mSensorManager = (SensorManager) getApplicationContext().getSystemService(SENSOR_SERVICE);
